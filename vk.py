@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import vk_api
 import time
+import os
 
 
 def main():
     """ Пример получения последнего сообщения со стены """
-    login = input("Введите номер телефона: ")
-    password = input("Введите пароль: ")
+    #login = input("Введите номер телефона: ")
+    login = "+79146665867"
+    #password = input("Введите пароль: ")
+    password = "Csgo2005"
     vk_session = vk_api.VkApi(login, password)
 
     try:
@@ -30,7 +33,20 @@ def main():
             #print(response[0])
             print("Лайки:", response[0]["likes"]["count"], "Репосты:", response[0]["reposts"]["count"], "Просмотры:",
                 response[0]["views"]["count"], "Комментарии:", response[0]["comments"]["count"], end="\n")
-        time.sleep(60)
+            #f = open("data.txt", mode="w", encoding="utf-8")
+            #f.write(str(response[0]["likes"]["count"]))
+            #f.write("\n")
+            #f.write(str(response[0]["reposts"]["count"]))
+            #f.write("\n")
+            #f.write(str(response[0]["views"]["count"]))
+            #f.write("\n")
+            #f.write(str(response[0]["comments"]["count"]))
+            #f.close()
+            time.sleep(10)
+        else:
+            print("Ошибка")
+            break
+        os.system("del vk_config.v2.json")
 
 
 if __name__ == '__main__':
