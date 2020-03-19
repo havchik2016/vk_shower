@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import vk_api
-import time
-import os
+import requests
 from tkinter import *
 from tkinter import messagebox
 
@@ -11,33 +10,37 @@ def main():
         login = message.get()
         password = message1.get()
         link = message2.get()
-
-        """ Пример получения последнего сообщения со стены """
         vk_session = vk_api.VkApi(login, password)
 
         try:
             vk_session.auth(token_only=True)
-        except vk_api.AuthError as error_msg:
-            print(error_msg)
+        except vk_api.AuthError:
+            messagebox.showerror("Ошибка", "Неверный логин или пароль!")
+            return
+        except requests.exceptions.ConnectionError:
+            messagebox.showerror("Ошибка", "Ошибка соединения!")
             return
 
         vk = vk_session.get_api()
-
-        """ VkApi.method позволяет выполнять запросы к API. В этом примере
-            используется метод wall.get (https://vk.com/dev/wall.get) с параметром
-            count = 1, т.е. мы получаем один последний пост со стены текущего
-            пользователя.
-        """
-        response = vk.wall.getById(posts=link.split("wall")[1])  # Используем метод wall.get
+        try:
+            response = vk.wall.getById(posts=link.split("wall")[1])
+        except IndexError:
+            messagebox.showerror("Ошибка", "Пост удален или не существует!")
+            return
         if response:
-            a = ("Лайки:", str(response[0]["likes"]["count"]), "Репосты:", str(response[0]["reposts"]["count"]), "Просмотры:",
-                  str(response[0]["views"]["count"]), "Комменты:", str(response[0]["comments"]["count"]))
+            a = ("Лайки:", str(response[0]["likes"]["count"]), "Репосты:", str(response[0]["reposts"]["count"]),
+                 "Просмотры:",
+                 str(response[0]["views"]["count"]), "Комменты:", str(response[0]["comments"]["count"]))
             messagebox.showinfo("Статистика", a)
-            
+        else:
+            messagebox.showerror("Ошибка", "Пост удален или не существует!")
 
     root = Tk()
     root.title("Анализатор VK")
     root.geometry("300x250")
+
+    def exit(event):
+        root.destroy()
 
     lbl = Label(root, text="Телефон:")
     lbl.place(relx=.2, rely=.1, anchor="c")
@@ -52,7 +55,7 @@ def main():
 
     message_entry = Entry(textvariable=message)
     message_entry.place(relx=.5, rely=.1, anchor="c")
-    message_entry1 = Entry(textvariable=message1)
+    message_entry1 = Entry(textvariable=message1, show="*")
     message_entry1.place(relx=.5, rely=.2, anchor="c")
     message_entry2 = Entry(textvariable=message2)
     message_entry2.place(relx=.5, rely=.3, anchor="c")
@@ -60,6 +63,11 @@ def main():
     message_button = Button(text="Выполнить запрос", command=vk_request)
     message_button.place(relx=.5, rely=.5, anchor="c")
 
+    def enter_request(event):
+        vk_request()
+
+    root.bind('<q>', exit)
+    root.bind('<Return>', enter_request)
     root.mainloop()
 
 
