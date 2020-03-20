@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import vk_api
 import requests
+import os
 from tkinter import *
 from tkinter import messagebox
 
@@ -22,10 +23,13 @@ def main():
             return
 
         vk = vk_session.get_api()
+        path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vk_config.v2.json')
         try:
             response = vk.wall.getById(posts=link.split("wall")[1])
+            os.remove(path)
         except IndexError:
             messagebox.showerror("Ошибка", "Пост удален или не существует!")
+            os.remove(path)
             return
         if response:
             a = ("❤", str(response[0]["likes"]["count"]), "➦", str(response[0]["reposts"]["count"]),
